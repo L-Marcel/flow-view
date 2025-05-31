@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres
+    container_name: flow-view-postgres-container
+    restart: "no"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: flow-view
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    ports:
+      - '5435:5432'
+volumes:
+  pgdata:

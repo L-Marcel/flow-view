@@ -1,0 +1,598 @@
+{
+  "name": "Process",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "media"
+            },
+            {
+              "name": "amount",
+              "type": "number"
+            },
+            {
+              "name": "sent",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -640,
+        160
+      ],
+      "id": "c52b11eb-9553-4f24-a230-a36edf7e47ed",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Social media not defined!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        200,
+        40
+      ],
+      "id": "4e280133-08ef-4fb3-8dd1-782567e849ef",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ca6e6d01-c91b-4e4a-8372-98acb26c14fd",
+              "leftValue": "={{ $json.media }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        160
+      ],
+      "id": "67d36e7e-0a32-4aa4-adbc-99455989391c",
+      "name": "If media is empty"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e9e3204-cc5f-494c-b1ae-93be8e342824",
+              "name": "media",
+              "value": "={{ $json.media ?? \"whatsapp\" }}",
+              "type": "string"
+            },
+            {
+              "id": "2b246369-a362-4c3c-8860-4d22c181aaa9",
+              "name": "amount",
+              "value": "={{ $json.amount ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "cab6645b-4e0d-4be6-8cfe-c5970ff0d5b9",
+              "name": "sent",
+              "value": "={{ $json.sent ?? false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "93b4c909-d5f2-4c35-aaa7-eff456b72c09",
+              "name": "backend_url",
+              "value": "={{ $env.BACKEND_URL }}",
+              "type": "string"
+            },
+            {
+              "id": "18f442c4-a221-4a82-a502-ced075cb21ce",
+              "name": "date",
+              "value": "={{ $json.date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        160
+      ],
+      "id": "989b61b6-a630-43d3-9e17-5fdfeda71c4c",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst year = now.getFullYear();\nconst month = (now.getMonth() + 1).toString().padStart(2, '0'); // Mês é 0-11, então +1\nconst day = now.getDate().toString().padStart(2, '0');\n\nreturn {\n  date: `${year}-${month}-${day}`\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        160
+      ],
+      "id": "d257131e-55f5-4ed9-b878-369960e7855c",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "day",
+              "value": "={{ $json.date }}"
+            },
+            {
+              "column": "media",
+              "value": "={{ $json.media }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        200,
+        220
+      ],
+      "id": "06fc3214-0b33-4642-9e2c-658f69379219",
+      "name": "Get old data",
+      "credentials": {
+        "postgres": {
+          "id": "eozTfjdy7PDXmlZw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "52612e17-6f31-4772-8f76-b05386c549dc",
+              "leftValue": "={{ $('Input').item.json.sent }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        220
+      ],
+      "id": "94060509-e663-4a37-9e7c-d6f5f4beef15",
+      "name": "If sent"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "day": "={{ $json.day }}",
+            "media": "={{ $('Old data').item.json.media }}",
+            "received": "={{ $('Old data').item.json.received + $('Input').item.json.amount }}",
+            "sent": "={{ $('Old data').item.json.sent }}"
+          },
+          "matchingColumns": [
+            "day",
+            "media"
+          ],
+          "schema": [
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "received",
+              "displayName": "received",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        760,
+        320
+      ],
+      "id": "13bb33f7-5921-4585-8f1c-e26c6823016f",
+      "name": "Update received",
+      "credentials": {
+        "postgres": {
+          "id": "eozTfjdy7PDXmlZw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9c3fc294-15ea-474c-8ac4-396a910eea7c",
+              "name": "day",
+              "value": "={{ $('Input').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "bba639e5-0ec4-469f-b07f-84d362b95d64",
+              "name": "media",
+              "value": "={{ $json.media }}",
+              "type": "string"
+            },
+            {
+              "id": "ccadace5-1987-44e4-aa50-3ee2fa024877",
+              "name": "received",
+              "value": "={{ $json.received }}",
+              "type": "number"
+            },
+            {
+              "id": "a86d07a5-c66b-47e1-b303-56339b1e01cc",
+              "name": "sent",
+              "value": "={{ $json.sent }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        360,
+        220
+      ],
+      "id": "7150682b-de92-4949-aa3c-12b8ca2d886b",
+      "name": "Old data"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "day": "={{ $('Old data').item.json.day }}",
+            "media": "={{ $('Old data').item.json.media }}",
+            "received": "={{ $('Old data').item.json.received }}",
+            "sent": "={{ $('Old data').item.json.sent + $('Input').item.json.amount }}"
+          },
+          "matchingColumns": [
+            "day",
+            "media"
+          ],
+          "schema": [
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "received",
+              "displayName": "received",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        760,
+        120
+      ],
+      "id": "8fb51b33-138e-42de-8d6a-2ae7e9907bb3",
+      "name": "Update sent",
+      "credentials": {
+        "postgres": {
+          "id": "eozTfjdy7PDXmlZw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e2484b9-5d3a-4213-87e1-8c15b0222ea5",
+              "name": "day",
+              "value": "={{ $('Old data').item.json.day }}",
+              "type": "string"
+            },
+            {
+              "id": "35bc0f7f-3495-443b-b4b4-232a526c95e5",
+              "name": "media",
+              "value": "={{ $('Old data').item.json.media }}",
+              "type": "string"
+            },
+            {
+              "id": "3ceaa033-a605-4718-8cf6-392d73bb1a9e",
+              "name": "received",
+              "value": "={{ $json.received }}",
+              "type": "number"
+            },
+            {
+              "id": "e8953b52-39aa-4f15-911d-d39eeb0f4b6f",
+              "name": "sent",
+              "value": "={{ $json.sent }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        220
+      ],
+      "id": "08da6beb-b964-4619-99ad-62437ddffa16",
+      "name": "Output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If media is empty": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get old data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "If media is empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get old data": {
+      "main": [
+        [
+          {
+            "node": "Old data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If sent": {
+      "main": [
+        [
+          {
+            "node": "Update sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Old data": {
+      "main": [
+        [
+          {
+            "node": "If sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update sent": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update received": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "70692992-f19b-43da-af47-c934fbfd02e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fcadcba3d9200a94e92fd738328700933a93e91c2c07dae5d45bd4e9d2dbcf9c"
+  },
+  "id": "tqEyPBJuf9ZvaupA",
+  "tags": []
+}

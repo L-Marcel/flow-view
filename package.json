@@ -1,0 +1,14 @@
+{
+	"scripts": {
+		"dev": "tsx ./start.ts"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.29",
+		"tsx": "^4.19.4"
+	},
+	"dependencies": {
+		"@ngrok/ngrok": "^1.5.1",
+		"dotenv": "^16.5.0",
+		"n8n": "^1.94.1"
+	}
+}
