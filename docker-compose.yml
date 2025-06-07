@@ -10,7 +10,6 @@ services:
       POSTGRES_DB: flow-view
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - '5435:5432'
 volumes:

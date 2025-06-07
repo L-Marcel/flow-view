@@ -18,7 +18,7 @@ type FormattedData = {
 };
 
 type ChartData = {
-    formattedData: FormattedData[];
+    data: FormattedData[];
     medias: string[];
     lastDate?: Date;
 };

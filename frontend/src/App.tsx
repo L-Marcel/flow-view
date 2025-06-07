@@ -1,62 +1,76 @@
-import { compareAsc, format, isSameDay, parseISO } from "date-fns";
+import { compareAsc, format, isSameDay, parse, parseISO } from "date-fns";
 import Chart from "./components/Chart";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import api from "./services/api";
+import IntervalFilter from "./components/IntervalFilter";
+import useData from "./store/useData";
 
 function App() {
-  const [data, setData] = useState<Data[]>([]);
+  const setIntervalLimits = useData((state) => state.setIntervalLimits);
+  const setMedias = useData((state) => state.setMedias);
+  const setData = useData((state) => state.setData);
 
   useEffect(() => {
     api.get<Data[]>("").then((response) => {
-      setData(response.data);
+      const { data, medias } = response.data
+        .map(({ day, ...data }) => ({ ...data, date: parseISO(day) }))
+        .sort((a, b) => compareAsc(a.date, b.date))
+        .reduce((prev, curr) => {
+          const media = curr.media.toLowerCase();
+          if(!prev.medias.includes(media)) prev.medias.push(media);
+    
+          if(!prev.lastDate || !isSameDay(prev.lastDate, curr.date)) {
+            prev.lastDate = curr.date;
+            prev.data.push({
+              date: format(curr.date, 'dd/MM/yyyy'),
+              sent: {
+                [media]: curr.sent
+              },
+              received: {
+                [media]: curr.received
+              }
+            });
+          } else {
+            const data: FormattedData = prev.data[prev.data.length - 1];
+            prev.data[prev.data.length - 1] = {
+              ...data,
+              sent: {
+                ...data.sent,
+                [media]: curr.sent
+              },
+              received: {
+                ...data.received,
+                [media]: curr.received
+              }
+            };
+          };
+    
+          return prev;
+        }, {
+          data: [],
+          medias: []
+        } as ChartData);
+
+        const firstDate = data.length > 0? data[0].date:undefined;
+        const lastDate = data.length > 0? data[data.length - 1].date:undefined;
+
+      setData(data);
+      setMedias(medias);
+      setIntervalLimits({
+        from: firstDate? parse(firstDate, "dd/MM/yyyy", new Date()):new Date(),
+        to: lastDate? parse(lastDate, "dd/MM/yyyy", new Date()):new Date()
+      });
     }).catch(() => {
       setData([]);
+      setMedias([]);
     });
-  }, [setData]);
+  }, [setData, setMedias, setIntervalLimits]);
   
-  const { formattedData, medias } = data
-    .map(({ day, ...data }) => ({ ...data, date: parseISO(day) }))
-    .sort((a, b) => compareAsc(a.date, b.date))
-    .reduce((prev, curr) => {
-      const media = curr.media.toLowerCase();
-      if(!prev.medias.includes(media)) prev.medias.push(media);
-
-      if(!prev.lastDate || !isSameDay(prev.lastDate, curr.date)) {
-        prev.lastDate = curr.date;
-        prev.formattedData.push({
-          date: format(curr.date, 'dd/MM/yyyy'),
-          sent: {
-            [media]: curr.sent
-          },
-          received: {
-            [media]: curr.received
-          }
-        });
-      } else {
-        const formattedData: FormattedData = prev.formattedData[prev.formattedData.length - 1];
-        prev.formattedData[prev.formattedData.length - 1] = {
-          ...formattedData,
-          sent: {
-            ...formattedData.sent,
-            [media]: curr.sent
-          },
-          received: {
-            ...formattedData.received,
-            [media]: curr.received
-          }
-        };
-      };
-
-      return prev;
-    }, {
-      formattedData: [],
-      medias: []
-    } as ChartData);
-
   return (
-    <section className="min-h-screen min-w-full flex flex-col p-6 gap-6">
-      <Chart type="received" keys={medias} data={formattedData}/>
-      <Chart type="sent" keys={medias} data={formattedData}/>
+    <section className="min-h-screen bg-base-100 min-w-full flex flex-col p-6 gap-6 items-center">
+      <IntervalFilter/>
+      <Chart type="received"/>
+      <Chart type="sent"/>
     </section>
   )
 }

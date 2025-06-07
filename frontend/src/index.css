@@ -1,1 +1,17 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+    themes: light --default;
+}
+
+.selected {
+    @apply bg-base-300;
+}
+
+.day_button {
+    @apply btn btn-square btn-ghost btn-neutral !size-[40px];
+}
+
+.range_end,
+.range_start {
+    @apply btn btn-square btn-neutral btn-active !size-[40px];
+}
