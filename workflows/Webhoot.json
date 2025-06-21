@@ -1,0 +1,299 @@
+{
+  "name": "Webhoot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        60,
+        0
+      ],
+      "id": "311d256e-be65-41db-8ad3-30ee839f9785",
+      "name": "Webhook",
+      "webhookId": "bf79e6d6-8e87-4962-a509-f836c0ac60ea"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96b47a04-b63c-4d31-902e-9f4175643d8b",
+              "name": "user-agent",
+              "value": "={{ $json.headers['user-agent'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        0
+      ],
+      "id": "75570e47-21f2-47d0-9996-bac7ca757174",
+      "name": "Identificar rede"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Rede não identificada!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        760,
+        260
+      ],
+      "id": "6206d01f-1ba6-44bf-a0bb-5229602bd555",
+      "name": "Rede não identificada!"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['user-agent'] }}",
+                    "rightValue": "WAHA/2025.6.3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f64a5e77-8c43-4182-ba2a-52c759477d95"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "65384743-8e6b-4fc6-ace4-97d97635e6af",
+                    "leftValue": "={{ $json['user-agent'] }}",
+                    "rightValue": "facebookplatform/1.0 (+http://developers.facebook.com)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        520,
+        0
+      ],
+      "id": "88445bd4-0a9f-462b-a2aa-ba688f019566",
+      "name": "Separar redes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3dac900f-b304-47d7-8a22-7615d344ac56",
+              "name": "fromMe",
+              "value": "={{ $('Webhook').item.json.body.payload.fromMe }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        -100
+      ],
+      "id": "d56706d9-7762-490b-86db-ab068048c221",
+      "name": "Whatsapp"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "q2YrM0iPbN4sEbnM",
+          "mode": "list",
+          "cachedResultName": "Enviar para o banco de dados"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sent": "={{ $json.fromMe }}",
+            "media": "whatsapp",
+            "amount": 1
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        -100
+      ],
+      "id": "8f8f619d-ec3c-47c0-8ae9-f1c1b2d7efd7",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3dac900f-b304-47d7-8a22-7615d344ac56",
+              "name": "fromMe",
+              "value": "={{ $('Webhook').item.json.body.payload.fromMe }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        760,
+        80
+      ],
+      "id": "34a14f3c-f6a7-4d8c-bade-02ae9823595a",
+      "name": "Messager"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Identificar rede",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Identificar rede": {
+      "main": [
+        [
+          {
+            "node": "Separar redes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar redes": {
+      "main": [
+        [
+          {
+            "node": "Whatsapp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Messager",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rede não identificada!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whatsapp": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3cceebf6-fee2-4aa4-b877-01480be5714e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "76175734ef2e78d1bd41ac26736959bca65fae03b258784ad7c8fe3603452e1e"
+  },
+  "id": "XHfh7AtwunSELnsO",
+  "tags": []
+}

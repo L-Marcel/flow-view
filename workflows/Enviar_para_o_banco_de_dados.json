@@ -1,0 +1,962 @@
+{
+  "name": "Enviar para o banco de dados",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "45ba57e9-9497-479a-9a8b-5491be0c495c",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        60,
+        140
+      ],
+      "id": "874b4d4e-088f-478d-a572-7a4b91bc20e1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1de2ce67-10a8-4781-ae73-a593177b1279",
+              "name": "count",
+              "value": "={{ $json.count }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        -80
+      ],
+      "id": "cb2cb9eb-3ef6-4fc1-b168-5082725401aa",
+      "name": "Contador"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(*) FROM data WHERE day=$1 AND media=$2;",
+        "options": {
+          "queryReplacement": "={{ $json.date }}, {{ $json.media }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -300,
+        140
+      ],
+      "id": "ed3aedd0-d744-4cc8-8d94-0a7a8b0b279f",
+      "name": "Contar entradas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "6Dt2yeG8TWD1KxVt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "52612e17-6f31-4772-8f76-b05386c549dc",
+              "leftValue": "={{ $('Formatação').item.json.sent }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        -80
+      ],
+      "id": "8f1b5cb0-ae95-42fa-82ea-7fe05e70d195",
+      "name": "Criando envio?"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "day": "={{ $('Não tem a rede?').item.json.date }}",
+            "media": "={{ $('Não tem a rede?').item.json.media }}",
+            "received": 1,
+            "sent": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "received",
+              "displayName": "received",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        780,
+        -40
+      ],
+      "id": "d9c7ced3-f30d-441b-9650-31a02b736026",
+      "name": "Cria recebimento",
+      "credentials": {
+        "postgres": {
+          "id": "6Dt2yeG8TWD1KxVt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "value": "=public",
+          "mode": "name"
+        },
+        "table": {
+          "__rl": true,
+          "value": "=data",
+          "mode": "name"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "=day",
+              "value": "={{ $('Formatação').item.json.date }}"
+            },
+            {
+              "column": "=media",
+              "value": "={{ $('Formatação').item.json.media }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1200,
+        160
+      ],
+      "id": "c0b7d62b-f55e-4bd0-93ff-27c4536d9788",
+      "name": "Obter dados antigos",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "6Dt2yeG8TWD1KxVt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst year = now.getFullYear();\nconst month = (now.getMonth() + 1).toString().padStart(2, '0'); // Mês é 0-11, então +1\nconst day = now.getDate().toString().padStart(2, '0');\n\nreturn {\n  date: `${year}-${month}-${day}`\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -940,
+        100
+      ],
+      "id": "99173280-580d-4518-ab8c-dd1d864a4499",
+      "name": "Formatando data"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "media"
+            },
+            {
+              "name": "amount",
+              "type": "number"
+            },
+            {
+              "name": "sent",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1140,
+        100
+      ],
+      "id": "837daac3-82c2-4a1a-9718-27962f13aac5",
+      "name": "Quando outro Workflow chama"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Rede não definida!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -40
+      ],
+      "id": "d17617d4-928d-4ecd-abd1-b4d81a95eb45",
+      "name": "Rede não definida!"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "day": "={{ $('Não tem a rede?').item.json.date }}",
+            "media": "={{ $('Não tem a rede?').item.json.media }}",
+            "sent": 1,
+            "received": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "received",
+              "displayName": "received",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        780,
+        -220
+      ],
+      "id": "b12fe9db-8972-4436-9d33-99103f84d78e",
+      "name": "Cria envio",
+      "credentials": {
+        "postgres": {
+          "id": "6Dt2yeG8TWD1KxVt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ca6e6d01-c91b-4e4a-8372-98acb26c14fd",
+              "leftValue": "={{ $json.media }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -540,
+        100
+      ],
+      "id": "9531de95-f99d-4035-b127-52b13a79f3b3",
+      "name": "Não tem a rede?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9c3fc294-15ea-474c-8ac4-396a910eea7c",
+              "name": "day",
+              "value": "={{ $('Formatação').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "bba639e5-0ec4-469f-b07f-84d362b95d64",
+              "name": "media",
+              "value": "={{ $json.media }}",
+              "type": "string"
+            },
+            {
+              "id": "ccadace5-1987-44e4-aa50-3ee2fa024877",
+              "name": "received",
+              "value": "={{ $json.received }}",
+              "type": "number"
+            },
+            {
+              "id": "a86d07a5-c66b-47e1-b303-56339b1e01cc",
+              "name": "sent",
+              "value": "={{ $json.sent }}",
+              "type": "number"
+            },
+            {
+              "id": "d65903b0-7000-4de1-b2eb-fde1a0cd2e1f",
+              "name": "amount",
+              "value": "={{ $('Formatação').item.json.amount }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1460,
+        160
+      ],
+      "id": "2b4b6887-787c-4ef4-b097-3f5bc2647cf1",
+      "name": "Formatando dados antigos"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "52612e17-6f31-4772-8f76-b05386c549dc",
+              "leftValue": "={{ $('Formatação').item.json.sent }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1660,
+        160
+      ],
+      "id": "b37f7866-03de-4b2a-866e-535013712fc7",
+      "name": "Foi envio?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e2484b9-5d3a-4213-87e1-8c15b0222ea5",
+              "name": "day",
+              "value": "={{ $('Formatando dados antigos').item.json.day }}",
+              "type": "string"
+            },
+            {
+              "id": "35bc0f7f-3495-443b-b4b4-232a526c95e5",
+              "name": "media",
+              "value": "={{ $('Formatando dados antigos').item.json.media }}",
+              "type": "string"
+            },
+            {
+              "id": "3ceaa033-a605-4718-8cf6-392d73bb1a9e",
+              "name": "received",
+              "value": "={{ $json.received }}",
+              "type": "number"
+            },
+            {
+              "id": "e8953b52-39aa-4f15-911d-d39eeb0f4b6f",
+              "name": "sent",
+              "value": "={{ $json.sent }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2060,
+        120
+      ],
+      "id": "2b3a0447-178c-4534-a4bb-4799653ba704",
+      "name": "Saída"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "day": "={{ $json.day }}",
+            "media": "={{ $json.media }}",
+            "received": "={{ $json.received }}",
+            "sent": "={{ parseInt($json.sent) + parseInt($json.amount) }}"
+          },
+          "matchingColumns": [
+            "day",
+            "media"
+          ],
+          "schema": [
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "received",
+              "displayName": "received",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1880,
+        20
+      ],
+      "id": "c4ff8620-d4eb-48a3-a8de-02656df3d6eb",
+      "name": "Atualizar envio",
+      "credentials": {
+        "postgres": {
+          "id": "6Dt2yeG8TWD1KxVt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "data",
+          "mode": "list",
+          "cachedResultName": "data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "day": "={{ $json.day }}",
+            "media": "={{ $json.media }}",
+            "received": "={{ parseInt($json.received) + parseInt($json.amount) }}",
+            "sent": "={{ $json.sent }}"
+          },
+          "matchingColumns": [
+            "day",
+            "media"
+          ],
+          "schema": [
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "media",
+              "displayName": "media",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "received",
+              "displayName": "received",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1880,
+        260
+      ],
+      "id": "ca365acd-adc3-4781-a700-4b432e88a373",
+      "name": "Atualizar recebimento",
+      "credentials": {
+        "postgres": {
+          "id": "6Dt2yeG8TWD1KxVt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e9e3204-cc5f-494c-b1ae-93be8e342824",
+              "name": "media",
+              "value": "={{ $('Quando outro Workflow chama').item.json.media }}",
+              "type": "string"
+            },
+            {
+              "id": "2b246369-a362-4c3c-8860-4d22c181aaa9",
+              "name": "amount",
+              "value": "={{ $('Quando outro Workflow chama').item.json.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "cab6645b-4e0d-4be6-8cfe-c5970ff0d5b9",
+              "name": "sent",
+              "value": "={{ $('Quando outro Workflow chama').item.json.sent }}",
+              "type": "boolean"
+            },
+            {
+              "id": "18f442c4-a221-4a82-a502-ced075cb21ce",
+              "name": "date",
+              "value": "={{ $json.date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -740,
+        100
+      ],
+      "id": "6cb98b28-de78-436c-82fb-865fe0c4c3f3",
+      "name": "Formatação"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Contador": {
+      "main": [
+        [
+          {
+            "node": "Criando envio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contar entradas": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Contador",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Obter dados antigos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criando envio?": {
+      "main": [
+        [
+          {
+            "node": "Cria envio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cria recebimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria recebimento": {
+      "main": [
+        [
+          {
+            "node": "Obter dados antigos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obter dados antigos": {
+      "main": [
+        [
+          {
+            "node": "Formatando dados antigos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatando data": {
+      "main": [
+        [
+          {
+            "node": "Formatação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quando outro Workflow chama": {
+      "main": [
+        [
+          {
+            "node": "Formatando data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria envio": {
+      "main": [
+        [
+          {
+            "node": "Obter dados antigos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Não tem a rede?": {
+      "main": [
+        [
+          {
+            "node": "Rede não definida!",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contar entradas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatando dados antigos": {
+      "main": [
+        [
+          {
+            "node": "Foi envio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Foi envio?": {
+      "main": [
+        [
+          {
+            "node": "Atualizar envio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Atualizar recebimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Saída": {
+      "main": [
+        []
+      ]
+    },
+    "Atualizar envio": {
+      "main": [
+        [
+          {
+            "node": "Saída",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar recebimento": {
+      "main": [
+        [
+          {
+            "node": "Saída",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatação": {
+      "main": [
+        [
+          {
+            "node": "Não tem a rede?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4c02e2ac-363c-4dea-8297-0561548c028d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "76175734ef2e78d1bd41ac26736959bca65fae03b258784ad7c8fe3603452e1e"
+  },
+  "id": "q2YrM0iPbN4sEbnM",
+  "tags": []
+}
