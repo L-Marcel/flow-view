@@ -31,4 +31,4 @@ public class Data {
 
     @Column(nullable = false)
     private Long received = 0l;
-}
+};

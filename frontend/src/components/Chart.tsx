@@ -43,12 +43,12 @@ export default function Chart({ type }: Props) {
   useEffect(() => {
     setFilters(keys);
   }, [keys, setFilters]);
- 
+
   const switchFilter = (filter?: string) => {
-      if(!filter) return;
-      const inFilter = filters.includes(filter);
-      if(inFilter) removeFilter(filter);
-      else addFilter(filter);
+    if (!filter) return;
+    const inFilter = filters.includes(filter);
+    if (inFilter) removeFilter(filter);
+    else addFilter(filter);
   };
 
   const addFilter = (filter: string) => {
@@ -60,11 +60,11 @@ export default function Chart({ type }: Props) {
   };
 
   const removeFilter = (filter: string) => {
-      setFilters((state) => {
-        let filters = [...state];
-        filters = filters.filter((candidate) => candidate !== filter);
-        return filters;
-      });
+    setFilters((state) => {
+      let filters = [...state];
+      filters = filters.filter((candidate) => candidate !== filter);
+      return filters;
+    });
   };
 
   return (
@@ -75,9 +75,11 @@ export default function Chart({ type }: Props) {
             const date = parse(data.date, "dd/MM/yyyy", new Date());
             const from = interval?.from ?? new Date();
             const to = interval?.to ?? new Date();
-            return (isAfter(date, from) && isBefore(date, to))
-              || isSameDay(date, from)
-              || isSameDay(date, to);
+            return (
+              (isAfter(date, from) && isBefore(date, to)) ||
+              isSameDay(date, from) ||
+              isSameDay(date, to)
+            );
           })}
           margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
         >
@@ -141,4 +143,4 @@ export default function Chart({ type }: Props) {
       </ResponsiveContainer>
     </div>
   );
-}
+};

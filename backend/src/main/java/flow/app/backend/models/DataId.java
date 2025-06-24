@@ -17,4 +17,4 @@ import lombok.Setter;
 public class DataId implements Serializable {
     private String media;
     private LocalDate day;
-}
+};

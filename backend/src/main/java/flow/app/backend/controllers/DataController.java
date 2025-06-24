@@ -21,5 +21,5 @@ public class DataController {
     private ResponseEntity<List<Data>> findAll() {
         List<Data> data = service.findAllData();
         return ResponseEntity.ok().body(data);
-    }
-}
+    };
+};

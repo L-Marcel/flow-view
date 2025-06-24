@@ -31,11 +31,13 @@ export default function IntervalFilter() {
           required
           month={month}
           onMonthChange={setMonth}
-          disabled={{
-            after: intervalLimits?.to,
-            before: intervalLimits?.from,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } as any}
+          disabled={
+            {
+              after: intervalLimits?.to,
+              before: intervalLimits?.from,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any
+          }
           classNames={{
             selected: "selected",
             day_button: "day_button",
@@ -50,4 +52,4 @@ export default function IntervalFilter() {
       </div>
     </>
   );
-}
+};

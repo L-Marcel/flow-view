@@ -15,5 +15,5 @@ public class DataService {
 
     public List<Data> findAllData() {
         return this.repository.findAll();
-    }
-}
+    };
+};
