@@ -18,7 +18,7 @@ interface Props {
 
 const SOCIAL_MEDIA_COLORS = {
   whatsapp: "#25D366",
-  facebook: "#1877F2",
+  messager: "#1877F2",
   instagram: "#E4405F",
   twitter: "#1DA1F2",
   linkedin: "#0A66C2",
@@ -69,6 +69,7 @@ export default function Chart({ type }: Props) {
 
   return (
     <div className="py-4 pr-6 pl-2 bg-base-200 rounded-2xl w-full">
+      <h1 className="font-semibold text-xl pl-4">{type === "sent"? "Enviando":"Recebido"}</h1>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={data.filter((data) => {

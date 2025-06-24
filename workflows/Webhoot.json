@@ -3,22 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "POST",
-        "path": "webhook",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        60,
-        0
-      ],
-      "id": "311d256e-be65-41db-8ad3-30ee839f9785",
-      "name": "Webhook",
-      "webhookId": "bf79e6d6-8e87-4962-a509-f836c0ac60ea"
-    },
-    {
-      "parameters": {
         "assignments": {
           "assignments": [
             {
@@ -47,8 +31,8 @@
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        760,
-        260
+        740,
+        140
       ],
       "id": "6206d01f-1ba6-44bf-a0bb-5229602bd555",
       "name": "Rede não identificada!"
@@ -78,29 +62,6 @@
                 ],
                 "combinator": "and"
               }
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "65384743-8e6b-4fc6-ace4-97d97635e6af",
-                    "leftValue": "={{ $json['user-agent'] }}",
-                    "rightValue": "facebookplatform/1.0 (+http://developers.facebook.com)",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              }
             }
           ]
         },
@@ -124,7 +85,7 @@
             {
               "id": "3dac900f-b304-47d7-8a22-7615d344ac56",
               "name": "fromMe",
-              "value": "={{ $('Webhook').item.json.body.payload.fromMe }}",
+              "value": "={{ $('Qualquer').item.json.body.payload.fromMe }}",
               "type": "boolean"
             }
           ]
@@ -139,6 +100,38 @@
       ],
       "id": "d56706d9-7762-490b-86db-ab068048c221",
       "name": "Whatsapp"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        140,
+        -220
+      ],
+      "id": "61d55f65-92f0-44c1-be4b-2e6250142328",
+      "name": "Telegram",
+      "webhookId": "bf79e6d6-8e87-4962-a509-f836c0ac60ea"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        60,
+        0
+      ],
+      "id": "311d256e-be65-41db-8ad3-30ee839f9785",
+      "name": "Qualquer",
+      "webhookId": "bf79e6d6-8e87-4962-a509-f836c0ac60ea"
     },
     {
       "parameters": {
@@ -197,46 +190,114 @@
         -100
       ],
       "id": "8f8f619d-ec3c-47c0-8ae9-f1c1b2d7efd7",
-      "name": "Execute Workflow"
+      "name": "Alterar dados (whatsapp)"
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
+        "workflowId": {
+          "__rl": true,
+          "value": "q2YrM0iPbN4sEbnM",
+          "mode": "list",
+          "cachedResultName": "Enviar para o banco de dados"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sent": false,
+            "media": "telegram",
+            "amount": 1
+          },
+          "matchingColumns": [],
+          "schema": [
             {
-              "id": "3dac900f-b304-47d7-8a22-7615d344ac56",
-              "name": "fromMe",
-              "value": "={{ $('Webhook').item.json.body.payload.fromMe }}",
+              "id": "media",
+              "displayName": "media",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
               "type": "boolean"
             }
-          ]
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
         },
         "options": {}
       },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
       "position": [
-        760,
-        80
+        380,
+        -220
       ],
-      "id": "34a14f3c-f6a7-4d8c-bade-02ae9823595a",
-      "name": "Messager"
+      "id": "4bc7f5ff-d0b1-47df-9aca-91163d1b6869",
+      "name": "Alterar dados (telegram)"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Telegram": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.l-marcel.dev.br",
+            "content-length": "270",
+            "accept-encoding": "gzip, deflate",
+            "content-type": "application/json",
+            "x-forwarded-for": "91.108.5.137",
+            "x-forwarded-host": "n8n.l-marcel.dev.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "965c41fb57ee",
+            "x-real-ip": "91.108.5.137"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "update_id": 174511143,
+            "message": {
+              "message_id": 4,
+              "from": {
+                "id": 5938973935,
+                "is_bot": false,
+                "first_name": "Lucas",
+                "last_name": "Marcel",
+                "language_code": "pt-br"
+              },
+              "chat": {
+                "id": 5938973935,
+                "first_name": "Lucas",
+                "last_name": "Marcel",
+                "type": "private"
+              },
+              "date": 1750801630,
+              "text": "a"
+            }
+          },
+          "webhookUrl": "https://n8n.l-marcel.dev.br/webhook/telegram",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Identificar rede",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
     "Identificar rede": {
       "main": [
         [
@@ -259,13 +320,6 @@
         ],
         [
           {
-            "node": "Messager",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
             "node": "Rede não identificada!",
             "type": "main",
             "index": 0
@@ -277,11 +331,34 @@
       "main": [
         [
           {
-            "node": "Execute Workflow",
+            "node": "Alterar dados (whatsapp)",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Alterar dados (telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualquer": {
+      "main": [
+        [
+          {
+            "node": "Identificar rede",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     }
   },
@@ -289,7 +366,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "3cceebf6-fee2-4aa4-b877-01480be5714e",
+  "versionId": "a7c22d5c-60d4-4852-ac38-9b6ab702f40b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "76175734ef2e78d1bd41ac26736959bca65fae03b258784ad7c8fe3603452e1e"
